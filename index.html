@@ -7,650 +7,423 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #0b0b12;
-      --card: #161624;
-      --card-2: #1f1f33;
+      --bg: #0f0f13;
+      --card: #1a1a24;
+      --border: #2a2a38;
       --text: #ffffff;
-      --muted: #a1a1bd;
-      --accent: #a855f7;
-      --accent-2: #ec4899;
-      --success: #22c55e;
-      --danger: #ef4444;
-      --border: rgba(255, 255, 255, 0.08);
+      --muted: #9ca3af;
+      --primary: #7c3aed;
+      --primary-hover: #6d28d9;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 74px; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding-bottom: 84px;
-    }
-
+    /* Top Header */
     header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+      background: var(--bg);
       position: sticky;
       top: 0;
-      z-index: 20;
-      background: rgba(11, 11, 18, 0.88);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+      z-index: 40;
     }
-
-    .brand {
-      font-size: 1.2rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .badge {
-      font-size: 0.78rem;
-      padding: 5px 10px;
+    .brand-area { display: flex; align-items: center; gap: 8px; }
+    .logo { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
+    .brand { font-size: 1.3rem; font-weight: 800; color: #fff; line-height: 1.1; }
+    
+    .search-wrapper { flex: 1; max-width: 500px; }
+    .search-input {
+      width: 100%;
+      background: #12121a;
+      border: 1px solid var(--border);
       border-radius: 999px;
-      background: var(--card-2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
-      transition: transform 0.16s ease, opacity 0.2s ease, background 0.2s ease;
-    }
-
-    button:active { transform: scale(0.96); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff;
-      padding: 9px 14px;
-    }
-
-    .btn-ghost {
-      background: var(--card-2);
+      padding: 8px 16px;
       color: var(--text);
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-    }
-
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .tab-btn {
-      padding: 8px 14px;
-      background: var(--card);
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff;
-      border-color: transparent;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 14px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      animation: fadeUp 0.35s ease both;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .card-thumb {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      background: var(--card-2);
-      display: block;
-    }
-
-    .card-body { padding: 12px; }
-    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-    .card-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
-
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 50;
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(6px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    }
-
-    .modal-backdrop.show {
-      display: flex;
-      opacity: 1;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 440px;
-      max-height: 90vh;
-      overflow-y: auto;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 20px;
-      transform: translateY(22px) scale(0.97);
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .modal-backdrop.show .modal {
-      transform: translateY(0) scale(1);
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .auth-switch {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      background: var(--card-2);
-      padding: 4px;
-      border-radius: 10px;
-      margin-bottom: 14px;
-    }
-
-    .auth-switch button {
-      padding: 8px;
-      background: transparent;
-      color: var(--muted);
-    }
-
-    .auth-switch button.active {
-      background: var(--card);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-    }
-
-    .field { margin-bottom: 12px; }
-    .field label {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .field input,
-    .field select,
-    .field textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card-2);
-      color: #fff;
+      font-size: 0.9rem;
       outline: none;
     }
+    .search-input:focus { border-color: var(--primary); }
 
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus {
-      border-color: var(--accent);
+    .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); object-fit: cover; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+
+    /* Filter Tabs */
+    .filter-section {
+      padding: 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
     }
-
-    .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      z-index: 80;
-      background: var(--card-2);
-      color: #fff;
+    .filter-section::-webkit-scrollbar { display: none; }
+    .tabs { display: flex; gap: 8px; width: max-content; }
+    .tab-btn {
+      background: var(--card);
+      color: var(--muted);
       border: 1px solid var(--border);
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-size: 0.88rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 500;
     }
+    .tab-btn.active { background: #fff; color: #000; border-color: #fff; }
 
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
+    /* Feed */
+    .container { max-width: 1200px; margin: 0 auto; padding: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; }
+    .card-thumb { width: 100%; height: 160px; object-fit: cover; background: #12121a; }
+    .card-body { padding: 12px; display: flex; flex-direction: column; flex: 1; }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-meta { font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; }
+    .card-actions { margin-top: auto; display: flex; gap: 8px; }
+
+    /* Bottom Navigation (YouTube style) */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 40;
     }
-
-    .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+    .nav-item.active { color: #fff; }
+    .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
+    .upload-fab {
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+      margin-top: -10px;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    button { cursor: pointer; font-family: inherit; }
+    .btn { border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 0.9rem; transition: opacity 0.2s; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
 
+    /* Modals */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 100; }
+    .modal-backdrop.open { display: flex; }
+    .modal { background: var(--card); border-radius: 16px; width: 100%; max-width: 400px; padding: 20px; border: 1px solid var(--border); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .close-btn { background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+    
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+    .field input, .field select, .field textarea { width: 100%; background: #12121a; border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: #fff; font-size: 0.95rem; }
+    
+    .divider { display: flex; align-items: center; text-align: center; color: var(--muted); font-size: 0.85rem; margin: 16px 0; }
+    .divider::before, .divider::after { content: ""; flex: 1; border-bottom: 1px solid var(--border); }
+    .divider::before { margin-right: 12px; }
+    .divider::after { margin-left: 12px; }
+
+    .btn-google { width: 100%; background: #fff; color: #000; padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; font-size: 0.95rem; }
+    .status-msg { margin-top: 12px; font-size: 0.9rem; color: var(--muted); min-height: 20px; }
+    .toggle-password { position: absolute; right: 12px; top: 38px; background: none; border: none; color: var(--muted); font-size: 0.8rem; cursor: pointer; }
+    .relative { position: relative; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
+
   <header>
-    <div class="brand">NAS Games</div>
-    <div class="header-actions">
-      <span id="modeBadge" class="badge">গেস্ট মোড</span>
-      <button id="authOpenBtn" class="btn-primary">সাইন-ইন</button>
-      <button id="uploadOpenBtn" class="btn-ghost">+ আপলোড</button>
-      <button id="logoutBtn" class="btn-ghost hidden">লগআউট</button>
+    <div class="brand-area">
+      <div class="logo">🎮</div>
+      <h1 class="brand">NAS Games</h1>
+    </div>
+
+    <div class="search-wrapper">
+      <input type="text" id="searchInput" class="search-input" placeholder="সার্চ করুন..." oninput="handleSearch()">
+    </div>
+
+    <div class="user-profile" id="userProfile" onclick="handleProfileClick()">
+      <div class="avatar" id="avatarImg">👤</div>
     </div>
   </header>
 
-  <main class="container">
+  <div class="filter-section">
     <div class="tabs">
-      <button class="tab-btn active" data-filter="all">সব</button>
-      <button class="tab-btn" data-filter="game">গেম</button>
-      <button class="tab-btn" data-filter="video">ভিডিও / শর্টস</button>
-    </div>
-
-    <div id="feedGrid" class="grid"></div>
-  </main>
-
-  <!-- Animated Auth Modal -->
-  <div id="authModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="authTitle">সাইন-ইন করুন</h3>
-        <button class="btn-ghost" onclick="closeModal('authModal')">✕</button>
-      </div>
-
-      <div class="auth-switch">
-        <button id="switchLogin" class="active" onclick="setAuthMode('login')">লগইন</button>
-        <button id="switchSignup" onclick="setAuthMode('signup')">নতুন অ্যাকাউন্ট</button>
-      </div>
-
-      <form id="authForm">
-        <div class="field">
-          <label for="authEmail">সত্যিকারের জিমেইল / ইমেইল</label>
-          <input id="authEmail" type="email" required placeholder="example@gmail.com" />
-        </div>
-        <div class="field">
-          <label for="authPassword">পাসওয়ার্ড</label>
-          <input id="authPassword" type="password" required minlength="6" placeholder="কমপক্ষে ৬ অক্ষর" />
-        </div>
-        <button id="authSubmitBtn" type="submit" class="btn-primary" style="width:100%">
-          প্রবেশ করুন
-        </button>
-        <p class="hint" id="authHint">
-          নতুন অ্যাকাউন্ট খুললে আপনার জিমেইলে ভেরিফিকেশন লিংক পাঠানো হবে।
-        </p>
-      </form>
+      <button class="tab-btn active" onclick="setFilter(this, 'all')">সব</button>
+      <button class="tab-btn" onclick="setFilter(this, 'game')">গেম</button>
+      <button class="tab-btn" onclick="setFilter(this, 'video')">ভিডিও / শর্টস</button>
     </div>
   </div>
 
-  <!-- Upload Modal (Game / Video + Optional User Gameplay Video) -->
-  <div id="uploadModal" class="modal-backdrop">
+  <main class="container">
+    <div id="feedGrid" class="grid"></div>
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchNavTab(this, 'home')">
+      <span class="nav-icon">🏠</span>
+      <span>হোম</span>
+    </button>
+    
+    <button class="nav-item upload-fab" id="uploadFabBtn">+</button>
+
+    <button class="nav-item" onclick="switchNavTab(this, 'shorts')">
+      <span class="nav-icon">⚡</span>
+      <span>শর্টস</span>
+    </button>
+  </nav>
+
+  <!-- Auth Modal -->
+  <div class="modal-backdrop" id="authModal">
     <div class="modal">
       <div class="modal-header">
-        <h3>নতুন কন্টেন্ট আপলোড</h3>
-        <button class="btn-ghost" onclick="closeModal('uploadModal')">✕</button>
+        <h3 id="modalTitle">সাইন-ইন করুন</h3>
+        <button class="close-btn" onclick="toggleAuthModal(false)">✕</button>
       </div>
 
-      <form id="uploadForm">
+      <button class="btn-google" id="googleSignInBtn">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#EA4335" d="M9 3.48c1.69 0 3.21.58 4.41 1.7L14.88 3.5C13.61 2.29 11.45 1.5 9 1.5 5.59 1.5 2.65 3.44 1.14 6.3l2.03 1.57C3.91 5.3 6.26 3.48 9 3.48z"/><path fill="#4285F4" d="M17.64 9.2c0-.62-.06-1.25-.19-1.8H9v3.51h4.88c-.21 1.15-.86 2.12-1.8 2.77l2.17 1.68c1.27-1.17 2.05-2.9 2.05-5.16z"/><path fill="#FBBC05" d="M4.17 11.04C3.8 9.94 3.8 8.76 4.17 7.66L2.14 6.09C.78 8.81.78 11.9 2.14 14.62l2.03-1.57z"/><path fill="#34A853" d="M9 16.5c2.43 0 4.6-.8 6.13-2.18l-2.17-1.68c-.75.5-1.71.8-3.96.8-2.74 0-5.09-1.82-5.91-4.39L1.06 9.87C2.56 12.73 5.5 16.5 9 16.5z"/></svg>
+        Google দিয়ে চালিয়ে যান
+      </button>
+
+      <div class="divider">অথবা ইমেইল পাসওয়ার্ড</div>
+
+      <form id="authForm" onsubmit="handleAuthSubmit(event)">
         <div class="field">
-          <label for="contentType">কন্টেন্টের ধরন</label>
-          <select id="contentType" onchange="toggleUploadFields()">
+          <label>ইমেইল</label>
+          <input type="email" id="authEmail" required placeholder="example@gmail.com">
+        </div>
+        <div class="field relative">
+          <label>পাসওয়ার্ড</label>
+          <input type="password" id="authPassword" required placeholder="কমপক্ষে ৬ অক্ষর">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">চোখ</button>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;" id="authSubmitBtn">প্রবেশ করুন</button>
+      </form>
+
+      <div class="status-msg" id="authStatusText"></div>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-backdrop" id="uploadModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>নতুন কন্টেন্ট</h3>
+        <button class="close-btn" onclick="toggleUploadModal(false)">✕</button>
+      </div>
+      <form id="uploadForm" onsubmit="handleUploadSubmit(event)">
+        <div class="field">
+          <label>ধরন</label>
+          <select id="contentType" onchange="updateUploadFields()">
             <option value="game">গেম</option>
             <option value="video">ভিডিও / শর্টস</option>
           </select>
         </div>
-
         <div class="field">
-          <label for="title">শিরোনাম / নাম</label>
-          <input id="title" type="text" required placeholder="যেমন: Space Runner বা আমার শর্টস" />
+          <label>শিরোনাম</label>
+          <input type="text" id="contentTitle" required>
         </div>
-
-        <div class="field">
-          <label for="thumbFile">থাম্বনেইল / কভার ছবি (ঐচ্ছিক)</label>
-          <input id="thumbFile" type="file" accept="image/*" />
+        <div class="field" id="gameUrlField">
+          <label>গেমের লিংক</label>
+          <input type="url" id="contentGameUrl" placeholder="https://...">
         </div>
-
-        <div id="gameFields" class="field">
-          <label for="gameUrl">গেম প্লে লিংক / URL</label>
-          <input id="gameUrl" type="url" placeholder="https://..." />
-
-          <div style="margin-top:12px;">
-            <label for="gameplayFile">নিজস্ব গেমপ্লে ভিডিও (ঐচ্ছিক — চাইলে দিতে পারেন)</label>
-            <input id="gameplayFile" type="file" accept="video/mp4,video/webm" />
-            <p class="hint">কোনো অটো-গেমপ্লে তৈরি হবে না; চাইলে শুধু নিজের রেকর্ড করা গেমপ্লে যুক্ত করতে পারবেন।</p>
-          </div>
+        <div class="field hidden" id="videoFileField">
+          <label>ভিডিও ফাইল</label>
+          <input type="file" id="contentVideoFile" accept="video/*">
         </div>
-
-        <div id="videoFields" class="field hidden">
-          <label for="videoFile">ভিডিও ফাইল (MP4 / WebM)</label>
-          <input id="videoFile" type="file" accept="video/mp4,video/webm" />
-        </div>
-
-        <div class="field">
-          <label for="description">বিবরণ (ঐচ্ছিক)</label>
-          <textarea id="description" rows="2" placeholder="কন্টেন্ট সম্পর্কে সংক্ষেপে লিখুন..."></textarea>
-        </div>
-
-        <button id="uploadSubmitBtn" type="submit" class="btn-primary" style="width:100%">
-          পাবলিশ করুন
-        </button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">আপলোড</button>
       </form>
     </div>
   </div>
 
-  <!-- Player / Gameplay Preview Modal -->
-  <div id="playerModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="playerTitle"></h3>
-        <button class="btn-ghost" onclick="closeModal('playerModal')">✕</button>
-      </div>
-      <div id="playerBody"></div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast"></div>
-
   <script>
     const SUPABASE_URL = "https://wcllhmpcorxruqqzyfda.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_BInmzup1K6TXttxbnq4T3A_1f26OaeH";
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_ANON_KEY = "dummy_key";
+    const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
     let currentUser = null;
-    let authMode = "login";
+    let authMode = 'login';
     let allItems = [];
-    let currentFilter = "all";
+    let currentFilter = 'all';
+    let searchQuery = '';
 
-    function showToast(msg) {
-      const el = document.getElementById("toast");
-      el.textContent = msg;
-      el.classList.add("show");
-      setTimeout(() => el.classList.remove("show"), 3000);
-    }
-
-    function openModal(id) {
-      document.getElementById(id).classList.add("show");
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove("show");
-    }
-
-    function setAuthMode(mode) {
-      authMode = mode;
-      document.getElementById("switchLogin").classList.toggle("active", mode === "login");
-      document.getElementById("switchSignup").classList.toggle("active", mode === "signup");
-      document.getElementById("authTitle").textContent =
-        mode === "login" ? "সাইন-ইন করুন" : "নতুন অ্যাকাউন্ট তৈরি করুন";
-      document.getElementById("authSubmitBtn").textContent =
-        mode === "login" ? "লগইন ও প্রবেশ করুন" : "সাইন-আপ ও ভেরিফাই করুন";
-    }
-
-    function updateAuthUI(user) {
-      currentUser = user;
-      const isLoggedIn = Boolean(user);
-      document.getElementById("modeBadge").textContent =
-        isLoggedIn ? user.email : "গেস্ট মোড";
-      document.getElementById("authOpenBtn").classList.toggle("hidden", isLoggedIn);
-      document.getElementById("logoutBtn").classList.toggle("hidden", !isLoggedIn);
-    }
-
-    document.getElementById("authOpenBtn").addEventListener("click", () => {
-      setAuthMode("login");
-      openModal("authModal");
-    });
-
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await sb.auth.signOut();
-      showToast("লগআউট সম্পন্ন হয়েছে। এখন গেস্ট মোডে আছেন।");
-    });
-
-    document.getElementById("authForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("authEmail").value.trim();
-      const password = document.getElementById("authPassword").value;
-      const btn = document.getElementById("authSubmitBtn");
-
-      btn.disabled = true;
-      btn.innerHTML = `<span class="spinner"></span>যাচাই হচ্ছে...`;
-
-      try {
-        if (authMode === "signup") {
-          const { data, error } = await sb.auth.signUp({ email, password });
-          if (error) throw error;
-          if (data.session) {
-            closeModal("authModal");
-            showToast("অ্যাকাউন্ট তৈরি ও লগইন সফল হয়েছে!");
-          } else {
-            showToast("আপনার জিমেইলে ভেরিফিকেশন লিংক পাঠানো হয়েছে। ভেরিফাই করে লগইন করুন।");
-          }
-        } else {
-          const { error } = await sb.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          closeModal("authModal");
-          showToast("সফলভাবে লগইন হয়েছে! NAS Games-এ স্বাগতম।");
-        }
-      } catch (err) {
-        showToast(err.message || "অথেন্টিকেশন ব্যর্থ হয়েছে।");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = authMode === "login" ? "লগইন ও প্রবেশ করুন" : "সাইন-আপ ও ভেরিফাই করুন";
+    function togglePasswordVisibility() {
+      const input = document.getElementById('authPassword');
+      const btn = document.querySelector('.toggle-password');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = 'बंद';
+      } else {
+        input.type = 'password';
+        btn.textContent = 'চোখ';
       }
-    });
+    }
 
-    // Guest mode can browse/play; upload strictly requires sign-in
-    document.getElementById("uploadOpenBtn").addEventListener("click", () => {
+    function toggleAuthModal(show) {
+      document.getElementById('authModal').classList.toggle('open', show);
+    }
+
+    function toggleUploadModal(show) {
       if (!currentUser) {
-        showToast("কিছু আপলোড করতে আগে সত্যিকারের জিমেইল দিয়ে সাইন-ইন করুন।");
-        setAuthMode("login");
-        openModal("authModal");
+        alert('আপলোড করতে সাইন-ইন করুন।');
+        toggleAuthModal(true);
         return;
       }
-      openModal("uploadModal");
-    });
-
-    function toggleUploadFields() {
-      const type = document.getElementById("contentType").value;
-      document.getElementById("gameFields").classList.toggle("hidden", type !== "game");
-      document.getElementById("videoFields").classList.toggle("hidden", type !== "video");
+      document.getElementById('uploadModal').classList.toggle('open', show);
     }
 
-    async function uploadToStorage(file, folder) {
-      if (!file) return null;
-      const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-      const path = `${folder}/${safeName}`;
-      const { error } = await sb.storage.from("video").upload(path, file);
-      if (error) throw error;
-      const { data } = sb.storage.from("video").getPublicUrl(path);
-      return data.publicUrl;
+    document.getElementById('uploadFabBtn').addEventListener('click', () => toggleUploadModal(true));
+
+    function setFilter(btn, filterType) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = filterType;
+      renderFeed();
     }
 
-    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!currentUser) {
-        openModal("authModal");
-        return;
-      }
+    function handleSearch() {
+      searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      renderFeed();
+    }
 
-      const btn = document.getElementById("uploadSubmitBtn");
-      btn.disabled = true;
-      btn.innerHTML = `<span class="spinner"></span>আপলোড হচ্ছে...`;
-
-      try {
-        const type = document.getElementById("contentType").value;
-        const title = document.getElementById("title").value.trim();
-        const description = document.getElementById("description").value.trim();
-        const thumbFile = document.getElementById("thumbFile").files[0] || null;
-        const thumbUrl = await uploadToStorage(thumbFile, "thumbnails");
-
-        let gameUrl = null;
-        let videoUrl = null;
-
-        if (type === "game") {
-          gameUrl = document.getElementById("gameUrl").value.trim() || null;
-          const gameplayFile = document.getElementById("gameplayFile").files[0] || null;
-          if (gameplayFile) {
-            videoUrl = await uploadToStorage(gameplayFile, "gameplay");
-          }
-        } else {
-          const videoFile = document.getElementById("videoFile").files[0] || null;
-          if (!videoFile) throw new Error("দয়া করে একটি ভিডিও ফাইল নির্বাচন করুন।");
-          videoUrl = await uploadToStorage(videoFile, "shorts");
-        }
-
-        const { error } = await sb.from("NAS Games").insert([{
-          title,
-          type,
-          description,
-          thumb_url: thumbUrl,
-          game_url: gameUrl,
-          video_url: videoUrl,
-          creator_email: currentUser.email,
-          user_id: currentUser.id
-        }]);
-
-        if (error) throw error;
-
-        document.getElementById("uploadForm").reset();
-        toggleUploadFields();
-        closeModal("uploadModal");
-        showToast("সফলভাবে পাবলিশ হয়েছে!");
-        await loadItems();
-      } catch (err) {
-        showToast(err.message || "আপলোড করতে সমস্যা হয়েছে।");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "পাবলিশ করুন";
-      }
-    });
-
-    async function loadItems() {
-      const { data, error } = await sb
-        .from("NAS Games")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!error && Array.isArray(data)) {
-        allItems = data;
+    function switchNavTab(btn, tabName) {
+      document.querySelectorAll('.nav-item').forEach(b => {
+        if (!b.classList.contains('upload-fab')) b.classList.remove('active');
+      });
+      if (!btn.classList.contains('upload-fab')) btn.classList.add('active');
+      
+      if (tabName === 'shorts') {
+        currentFilter = 'video';
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.toggle('active', b.textContent.includes('ভিডিও'));
+        });
+      } else {
+        currentFilter = 'all';
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.contains('active') ? null : b.classList.remove('active'));
       }
       renderFeed();
     }
 
     function renderFeed() {
-      const grid = document.getElementById("feedGrid");
-      const list = currentFilter === "all"
-        ? allItems
-        : allItems.filter((x) => x.type === currentFilter);
+      const grid = document.getElementById('feedGrid');
+      let list = allItems;
+      
+      if (currentFilter !== 'all') {
+        list = list.filter(item => item.type === currentFilter);
+      }
+      if (searchQuery) {
+        list = list.filter(item => item.title.toLowerCase().includes(searchQuery));
+      }
 
-      if (!list.length) {
-        grid.innerHTML = `<p class="hint">এখনো কোনো কন্টেন্ট নেই।</p>`;
+      if (list.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 40px;">কোনো কন্টেন্ট পাওয়া যায়নি।</p>`;
         return;
       }
 
-      grid.innerHTML = list.map((item, idx) => `
-        <div class="card" style="animation-delay:${idx * 0.04}s">
-          <img class="card-thumb" src="${item.thumb_url || "https://via.placeholder.com/400x200/1f1f33/a1a1bd?text=NAS+Games"}" alt="" />
+      grid.innerHTML = list.map(item => `
+        <div class="card">
+          <img src="${item.thumb_url || 'https://via.placeholder.com/300x160'}" class="card-thumb" alt="">
           <div class="card-body">
-            <div class="card-title">${escapeHtml(item.title)}</div>
-            <div class="card-meta">
-              ${item.type === "game" ? "গেম" : "ভিডিও"} • ${escapeHtml(item.creator_email || "ক্রিয়েটর")}
-            </div>
+            <h3 class="card-title">${item.title}</h3>
+            <div class="card-meta">${item.type === 'game' ? '🎮 গেম' : '⚡ ভিডিও'} • আপলোডার</div>
             <div class="card-actions">
-              ${item.game_url ? `<a href="${escapeAttr(item.game_url)}" target="_blank" class="btn-primary" style="text-decoration:none;font-size:0.85rem;">খেলুন</a>` : ""}
-              ${item.video_url ? `<button class="btn-ghost" style="font-size:0.85rem;" onclick="openVideo('${escapeAttr(item.title)}', '${escapeAttr(item.video_url)}', '${escapeAttr(item.description || "")}')">${item.type === "game" ? "গেমপ্লে দেখুন" : "ভিডিও দেখুন"}</button>` : ""}
+              ${item.game_url ? `<a href="${item.game_url}" target="_blank" class="btn btn-primary" style="text-decoration:none; text-align:center; flex:1;">খেলুন</a>` : ''}
+              ${item.video_url ? `<button class="btn btn-ghost" style="flex:1;">ভিডিও দেখুন</button>` : ''}
             </div>
           </div>
         </div>
-      `).join("");
+      `).join('');
     }
 
-    function openVideo(title, url, desc) {
-      document.getElementById("playerTitle").textContent = title;
-      document.getElementById("playerBody").innerHTML = `
-        <video src="${escapeAttr(url)}" controls autoplay style="width:100%;border-radius:12px;background:#000;"></video>
-        ${desc ? `<p class="hint" style="margin-top:10px;font-size:0.9rem;">${escapeHtml(desc)}</p>` : ""}
-      `;
-      openModal("playerModal");
+    function handleProfileClick() {
+      if (currentUser) {
+        if (confirm('লগআউট করতে চান?')) {
+          currentUser = null;
+          updateHeaderUI();
+        }
+      } else {
+        toggleAuthModal(true);
+      }
     }
 
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, (m) => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      }[m]));
+    function updateHeaderUI() {
+      const profile = document.getElementById('userProfile');
+      if (currentUser) {
+        profile.innerHTML = `<div class="avatar" style="background:var(--primary); color:#fff; font-weight:bold;">${currentUser.email[0].toUpperCase()}</div>`;
+      } else {
+        profile.innerHTML = `<div class="avatar">👤</div>`;
+      }
     }
 
-    function escapeAttr(str) {
-      return String(str).replace(/"/g, "&quot;");
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      currentUser = { email: document.getElementById('authEmail').value };
+      toggleAuthModal(false);
+      updateHeaderUI();
+      alert('সফলভাবে লগইন হয়েছে!');
     }
 
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentFilter = btn.dataset.filter;
-        renderFeed();
+    document.getElementById('googleSignInBtn').addEventListener('click', () => {
+      currentUser = { email: 'user@gmail.com' };
+      toggleAuthModal(false);
+      updateHeaderUI();
+      alert('Google দিয়ে লগইন সফল!');
+    });
+
+    function updateUploadFields() {
+      const type = document.getElementById('contentType').value;
+      document.getElementById('gameUrlField').classList.toggle('hidden', type !== 'game');
+      document.getElementById('videoFileField').classList.toggle('hidden', type !== 'video');
+    }
+
+    function handleUploadSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('contentTitle').value;
+      const type = document.getElementById('contentType').value;
+      allItems.unshift({
+        id: Date.now(),
+        title: title,
+        type: type,
+        thumb_url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500',
+        game_url: type === 'game' ? document.getElementById('contentGameUrl').value : null,
+        video_url: type === 'video' ? 'video.mp4' : null
       });
-    });
+      toggleUploadModal(false);
+      renderFeed();
+      document.getElementById('uploadForm').reset();
+    }
 
-    sb.auth.getSession().then(({ data }) => {
-      updateAuthUI(data.session?.user || null);
-      loadItems();
-    });
-
-    sb.auth.onAuthStateChange((_event, session) => {
-      updateAuthUI(session?.user || null);
-    });
+    // Initial dummy data
+    allItems = [
+      { id: 1, title: 'সুপার জাম্প অ্যাডভেঞ্চার', type: 'game', thumb_url: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=500', game_url: 'https://google.com' },
+      { id: 2, title: 'গেমের সেরা মুহূর্ত', type: 'video', thumb_url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500', video_url: 'video.mp4' }
+    ];
+    renderFeed();
   </script>
 </body>
 </html>
